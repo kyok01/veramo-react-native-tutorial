@@ -33,9 +33,9 @@ import { getResolver as webDidResolver } from 'web-did-resolver'
 // TypeORM is installed with '@veramo/data-store'
 import { DataSource } from 'typeorm'
 
-// filename: setup.ts
-
 // ... imports
+// This plugin allows us to issue and verify W3C Verifiable Credentials with JWT proof format
+import { CredentialPlugin, ICredentialIssuer, ICredentialVerifier } from '@veramo/credential-w3c'
 
 // CONSTANTS
 // You will need to get a project ID from infura https://www.infura.io
@@ -66,7 +66,7 @@ let dbConnection = new DataSource({
 // ... imports & CONSTANTS & DB setup
 
 // Veramo agent setup
-export const agent = createAgent<IDIDManager & IKeyManager & IDataStore & IDataStoreORM>({
+export const agent = createAgent<IDIDManager & IKeyManager & IDataStore & IDataStoreORM & IResolver & ICredentialIssuer & ICredentialVerifier>({
   plugins: [
     new KeyManager({
       store: new KeyStore(dbConnection),
@@ -92,5 +92,6 @@ export const agent = createAgent<IDIDManager & IKeyManager & IDataStore & IDataS
         ...ethrDidResolver({ infuraProjectId: INFURA_PROJECT_ID }), // and set it up to support `did:ethr`
         ...webDidResolver(), // and `did:web`
       }),
+    new CredentialPlugin(),
   ],
 })
