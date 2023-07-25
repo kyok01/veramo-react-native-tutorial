@@ -13,12 +13,13 @@ import { SafeAreaView, ScrollView, View, Text, Button } from 'react-native'
 // Import the agent from our earlier setup
 import { agent } from './setup'
 // import some data types:
-import { DIDResolutionResult, IIdentifier, VerifiableCredential } from '@veramo/core'
+import { DIDResolutionResult, IIdentifier, VerifiableCredential, IVerifyResult } from '@veramo/core'
 
 const App = () => {
   const [identifiers, setIdentifiers] = useState<IIdentifier[]>([])
   const [resolutionResult, setResolutionResult] = useState<DIDResolutionResult | undefined>()
   const [credential, setCredential] = useState<VerifiableCredential | undefined>()
+  const [verificationResult, setVerificationResult] = useState<IVerifyResult | undefined>()
 
   // Resolve a DID
   const resolveDID = async (did: string) => {
@@ -51,6 +52,13 @@ const App = () => {
       })
 
       setCredential(verifiableCredential)
+    }
+  }
+
+  const verifyCredential = async () => {
+    if (credential) {
+      const result = await agent.verifyCredential({ credential })
+      setVerificationResult(result)
     }
   }
 
@@ -98,6 +106,10 @@ const App = () => {
             onPress={() => createCredential()}
           />
           <Text style={{ fontSize: 10 }}>{JSON.stringify(credential, null, 2)}</Text>
+        </View>
+        <View style={{ padding: 20 }}>
+          <Button title={'Verify Credential'} onPress={() => verifyCredential()} disabled={!credential} />
+          <Text style={{ fontSize: 10 }}>{JSON.stringify(verificationResult, null, 2)}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
